@@ -1,0 +1,10 @@
+RewriteEngine On
+# On force Apache à travailler dans ton dossier projet
+RewriteBase /revieweo/public/
+
+# Si le fichier demandé n'existe pas physiquement (comme /login)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Alors on envoie la demande à index.php
+RewriteRule ^(.*)$ index.php [L,QSA]
