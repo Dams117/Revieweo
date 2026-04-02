@@ -1,3 +1,19 @@
+<?php
+require_once '../config/Database.php';
+require_once '../models/Critique.php';
+
+$database = new Database();
+$db = $database->getConnection();
+
+// On utilise les vrais noms : contenu, date_creation et User.pseudo
+$stmt = $db->prepare("SELECT critique.*, User.pseudo 
+                      FROM critique 
+                      JOIN User ON critique.id_user = User.id 
+                      ORDER BY critique.date_creation DESC LIMIT 3");
+$stmt->execute();
+$dernieres_critiques = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +32,7 @@
   <div class="container">
     <a class="navbar-brand" href="../views/home.php">SCENEVIEW</a> <!-- CORRECTION 1 : Lien vers l'accueil -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-  <span class="navbar-toggler-icon"></span>
+ <a class="navbar-brand" href="index.php" style="color: #ff8000 !important;">SCENEVIEW</a>
 </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto gap-3">
