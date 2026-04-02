@@ -1,22 +1,21 @@
 <?php
-// 1. Appel des fichiers nécessaires
-require_once '../config/Database.php';
-require_once '../models/User.php';
+require_once '../models/User.php'; 
+session_start();
 
-$message = "";
+$userModel = new User(); 
+$message = ""; // Initialisation pour éviter l'erreur "Undefined"
 
-// 2. On vérifie si le formulaire est posté
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
-    // On instancie l'objet User (ton constructeur gère déjà la BDD via getInstance)
-    $user = new User();
+    $pseudo = $_POST['pseudo'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
 
-    // 3. TENTATIVE D'INSERTION 
-    // On appelle la méthode register() avec les données du formulaire
-    if($user->register($_POST['pseudo'], $_POST['email'], $_POST['password'])) {
-        $message = "<div class='alert alert-success'>Utilisateur créé avec succès !</div>";
+    if ($userModel->register($pseudo, $email, $password)) {
+        header("Location: login.php?success=1");
+        exit();
     } else {
-        $message = "<div class='alert alert-danger'>Erreur : impossible de créer le compte (l'email est peut-être déjà utilisé).</div>";
+        // On stocke le texte dans $message pour qu'il corresponde à ton echo plus bas
+        $message = "Ce compte ou cet email existe déjà !";
     }
 }
 ?>
@@ -33,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .form-control:focus { background-color: #556677; color: white; border-color: #00bb02; box-shadow: none; }
         .btn-register { background-color: #00bb02; border: none; font-weight: bold; padding: 12px; }
         .btn-register:hover { background-color: #008f1a; }
+        /* Style pour l'alerte d'erreur */
+        .alert-custom { background-color: rgba(255, 68, 68, 0.2); border: 1px solid #ff4444; color: #ff4444; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 20px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -40,28 +41,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="register-card">
     <h2 class="text-center mb-4">JOIN SCENEVIEW</h2>
     
-    <!-- Affichage du message de succès ou d'erreur -->
-    <?php echo $message; ?>
+    <!-- Affichage sécurisé du message -->
+    <?php if (!empty($message)): ?>
+        <div class="alert-custom">
+            ⚠️ <?php echo htmlspecialchars($message); ?>
+        </div>
+    <?php endif; ?>
 
     <form method="POST" action=""> 
         <div class="mb-3">
-            <label class="small text-white-50">USERNAME</label>
+            <label class="small text-white-50 text-uppercase fw-bold">Username</label>
             <input type="text" name="pseudo" class="form-control" placeholder="Nom d'utilisateur" required>
         </div>
         <div class="mb-3">
-            <label class="small text-white-50">EMAIL</label>
+            <label class="small text-white-50 text-uppercase fw-bold">Email</label>
             <input type="email" name="email" class="form-control" placeholder="email@exemple.com" required>
         </div>
         <div class="mb-3">
-            <label class="small text-white-50">PASSWORD</label>
+            <label class="small text-white-50 text-uppercase fw-bold">Password</label>
             <input type="password" name="password" class="form-control" placeholder="Mot de passe" required>
         </div>
-        <button type="submit" class="btn btn-primary w-100 btn-register">Create Account</button>
+        <button type="submit" class="btn btn-primary w-100 btn-register">CREATE ACCOUNT</button>
     </form>
 
     <div class="text-center mt-4">
-        <a href="login.php" class="text-white-50 text-decoration-none small">SIGN IN</a><br>
-        <a href="../front/index.php" class="text-white-50 text-decoration-none small">← Back to home</a>
+        <a href="login.php" class="text-white-50 text-decoration-none small">ALREADY HAVE AN ACCOUNT? SIGN IN</a><br>
+        <a href="../front/index.php" class="text-white-50 text-decoration-none small">← BACK TO HOME</a>
     </div>
 </div>
 

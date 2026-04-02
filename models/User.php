@@ -8,12 +8,19 @@ class User {
         $this->db = Database::getInstance();
     }
 
-    public function register($pseudo, $email, $password) {
+  public function register($pseudo, $email, $password) {
+    try {
         $hash = password_hash($password, PASSWORD_BCRYPT);
         $stmt = $this->db->prepare("INSERT INTO `User` (pseudo, email, password, role) VALUES (?, ?, ?, 0)");
         return $stmt->execute([$pseudo, $email, $hash]);
+    } catch (PDOException $e) {
+        // Le code d'erreur 23000 correspond à une violation de contrainte (doublon)
+        if ($e->getCode() == '23000') {
+            return false; // On retourne false au lieu de faire planter le site
+        }
+        throw $e; // Si c'est une autre erreur, on la laisse passer
     }
-
+}
     public function login($email, $password) {
         $stmt = $this->db->prepare("SELECT * FROM `User` WHERE email = ?");
         $stmt->execute([$email]);
